@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     wget \
     openssh-server \
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
 # Set python3.11 as default
