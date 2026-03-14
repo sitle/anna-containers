@@ -8,7 +8,9 @@
 	}
 
 	handle @auth {
-		reverse_proxy localhost:{$BACKEND_PORT:8000}
+		reverse_proxy localhost:{$BACKEND_PORT:8000} {
+			header_up Host localhost:{$BACKEND_PORT:8000}
+		}
 	}
 
 	handle {
