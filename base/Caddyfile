@@ -1,0 +1,21 @@
+{
+	auto_https off
+}
+
+:8080 {
+	@auth {
+		header Authorization "Bearer {$API_KEY}"
+	}
+
+	handle @auth {
+		reverse_proxy localhost:{$BACKEND_PORT:8000}
+	}
+
+	handle {
+		respond "Unauthorized" 401
+	}
+
+	log {
+		output stdout
+	}
+}

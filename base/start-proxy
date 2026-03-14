@@ -1,0 +1,17 @@
+#!/bin/bash
+set -e
+
+if [ -z "$API_KEY" ]; then
+    echo "ERROR: API_KEY environment variable is required."
+    echo "Usage: API_KEY=your-secret start-proxy"
+    exit 1
+fi
+
+BACKEND_PORT="${BACKEND_PORT:-8000}"
+echo "=== Caddy Reverse Proxy ==="
+echo "Proxy:    http://0.0.0.0:8080"
+echo "Backend:  http://localhost:${BACKEND_PORT}"
+echo "Auth:     Bearer token required"
+echo "==========================="
+
+exec caddy run --config /etc/caddy/Caddyfile

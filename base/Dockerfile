@@ -21,7 +21,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     locales \
     software-properties-common \
     zstd \
+    debian-keyring \
+    debian-archive-keyring \
+    apt-transport-https \
     && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Caddy (reverse proxy with API key auth)
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg \
+    && curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list \
+    && apt-get update && apt-get install -y --no-install-recommends caddy \
     && rm -rf /var/lib/apt/lists/*
 
 ENV LANG=en_US.UTF-8
@@ -42,9 +51,17 @@ RUN mkdir -p /run/sshd \
     && echo "PermitRootLogin yes" >> /etc/ssh/sshd_config \
     && echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
+# Caddy reverse proxy config (API_KEY env var required at runtime)
+COPY Caddyfile /etc/caddy/Caddyfile
+
+# Helper script to start Caddy
+COPY start-proxy /usr/local/bin/start-proxy
+RUN chmod +x /usr/local/bin/start-proxy
+
 # Working directory
 WORKDIR /workspace
 
-EXPOSE 8000 8001 22
+# Only expose the authenticated proxy port
+EXPOSE 8080 22
 
 CMD ["/bin/bash"]
