@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+MODEL="${1:?Usage: sglang-serve <model-path-or-hf-id> [quantization] [tool-call-parser]}"
+QUANT="${2:-awq_marlin}"
+PARSER="${3:-hermes}"
+PORT="${PORT:-8000}"
+
+echo "=== SGLang Server ==="
+echo "Model:    $MODEL"
+echo "Quant:    $QUANT"
+echo "Parser:   $PARSER"
+echo "Port:     $PORT"
+echo "===================="
+
+exec python -u -m sglang.launch_server \
+    --model-path "$MODEL" \
+    --port "$PORT" \
+    --host 0.0.0.0 \
+    --quantization "$QUANT" \
+    --dtype auto \
+    --tool-call-parser "$PARSER"

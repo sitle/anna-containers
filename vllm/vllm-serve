@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+MODEL="${1:?Usage: vllm-serve <model-path-or-hf-id> [quantization] [tool-call-parser]}"
+QUANT="${2:-awq_marlin}"
+PARSER="${3:-hermes}"
+PORT="${PORT:-8000}"
+
+echo "=== vLLM Server ==="
+echo "Model:    $MODEL"
+echo "Quant:    $QUANT"
+echo "Parser:   $PARSER"
+echo "Port:     $PORT"
+echo "==================="
+
+exec python -m vllm.entrypoints.openai.api_server \
+    --model "$MODEL" \
+    --port "$PORT" \
+    --host 0.0.0.0 \
+    --quantization "$QUANT" \
+    --dtype auto \
+    --enable-auto-tool-choice \
+    --tool-call-parser "$PARSER" \
+    --gpu-memory-utilization 0.90

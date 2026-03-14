@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+
+MODEL="${1:?Usage: ollama-serve <model-name> (e.g. qwen2.5-coder:32b)}"
+PORT="${PORT:-11434}"
+
+echo "=== Ollama Server ==="
+echo "Model:    $MODEL"
+echo "Port:     $PORT"
+echo "====================="
+
+# Start Ollama server in background
+OLLAMA_HOST="0.0.0.0:${PORT}" ollama serve &
+OLLAMA_PID=$!
+
+# Wait for server to be ready
+echo "Waiting for Ollama to start..."
+for i in $(seq 1 30); do
+    if curl -s "http://localhost:${PORT}/api/tags" > /dev/null 2>&1; then
+        echo "Ollama ready."
+        break
+    fi
+    sleep 1
+done
+
+# Pull and run the model
+echo "Pulling model: $MODEL ..."
+ollama pull "$MODEL"
+echo "Model ready. Ollama API available at http://0.0.0.0:${PORT}"
+
+# Keep running
+wait $OLLAMA_PID
