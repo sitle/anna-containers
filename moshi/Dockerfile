@@ -1,11 +1,21 @@
-ARG BASE_IMAGE=ghcr.io/sitle/anna-containers/base:latest
-FROM ${BASE_IMAGE}
+FROM python:3.10-slim
 
-# Install Moshi and Gradio
-RUN pip install --no-cache-dir moshi gradio
+ENV PYTHONUNBUFFERED=1
 
-# Helper script to launch Moshi with proxy
+# System dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Moshi (pulls PyTorch with CUDA as dependency)
+RUN pip install --no-cache-dir moshi
+
+WORKDIR /workspace
+
+# Helper script
 COPY moshi-serve /usr/local/bin/moshi-serve
 RUN chmod +x /usr/local/bin/moshi-serve
+
+EXPOSE 8998
 
 ENTRYPOINT ["/bin/bash"]
